@@ -39,7 +39,7 @@ public class PdFdemoApplication {
 				e.printStackTrace();
 			}
 
-			Tesseract tessaractInstance = Tesseract.getInstance();
+			TesseractCustom tessaractInstance = TesseractCustom.getInstance();
 			tessaractInstance.setLanguage(prop.getProperty("lang","eng"));
 			tessaractInstance.setDatapath(prop.getProperty("tessdata.path","/usr/local/Cellar/tesseract/3.04.01_2/share/tessdata"));
 
