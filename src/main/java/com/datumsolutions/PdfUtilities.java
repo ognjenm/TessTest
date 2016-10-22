@@ -95,7 +95,6 @@ public class PdfUtilities {
         // Changes Ognjen
         gsArgs.add("-dINTERPOLATE");
         gsArgs.add("-dNumRenderingThreads=4");
-        gsArgs.add("-c 30000000 setvmthreshold -f");
         // decreased from 300ppi
         gsArgs.add("-r200");
         // End of changes
