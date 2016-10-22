@@ -47,7 +47,7 @@ public class TesseractCustom extends net.sourceforge.tess4j.Tesseract {
 
     public TesseractCustom() {
         super();
-        this.renderedFormat = RenderedFormat.TEXT;
+        this.renderedFormat = RenderedFormat.PDF;
         this.psm = -1;
         this.ocrEngineMode = 3;
         this.prop = new Properties();
