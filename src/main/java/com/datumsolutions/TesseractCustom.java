@@ -21,15 +21,13 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.IIOImage;
-import net.sourceforge.tess4j.ITesseract;
+
 import net.sourceforge.tess4j.TessAPI;
-import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.ITessAPI.TessBaseAPI;
 import net.sourceforge.tess4j.ITessAPI.TessResultRenderer;
-import net.sourceforge.tess4j.ITesseract.RenderedFormat;
 import net.sourceforge.tess4j.util.ImageIOHelper;
-import com.datumsolutions.PdfUtilities;
+import com.datumsolutions.util.PdfUtilities;
 import net.sourceforge.tess4j.util.Utils;
 
 public class TesseractCustom extends net.sourceforge.tess4j.Tesseract {
