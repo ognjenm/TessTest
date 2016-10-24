@@ -45,6 +45,9 @@ public class PdFdemoApplication {
 			System.out.println("OS current temporary directory is " + tempDirPath);
 			File tempDir = FileUtils.createTempDir();
 			//USING WORKING DIR FOR DEBUG
+			//COMMENT THIS IN PRODUCTION
+			// Below is screnshot of settings in Intelij
+			// https://www.dropbox.com/s/1ttb8lwn2qfbz0m/Screenshot%202016-10-24%2017.02.34.png?dl=1
 			tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR/png");
 
 			TesseractCustom tessaractInstance = new TesseractCustom();
