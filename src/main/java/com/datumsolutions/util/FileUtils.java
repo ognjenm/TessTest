@@ -49,4 +49,26 @@ public class FileUtils {
                 + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
     }
 
+    static public void deleteDirectory(File path)
+    {
+        if (path == null)
+            return;
+        if (path.exists())
+        {
+            for(File f : path.listFiles())
+            {
+                if(f.isDirectory())
+                {
+                    deleteDirectory(f);
+                    f.delete();
+                }
+                else
+                {
+                    f.delete();
+                }
+            }
+            path.delete();
+        }
+    }
+
 }
