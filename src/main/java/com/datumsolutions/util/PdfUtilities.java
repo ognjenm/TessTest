@@ -141,6 +141,75 @@ public class PdfUtilities {
         return workingFiles;
     }
 
+
+    public static File[] convertPdf2Png(File inputPdfFile, File imageDir) {
+
+        if (imageDir != null) {
+            String pdfDir = imageDir.getAbsolutePath();
+            imageDir = new File(pdfDir);
+        }
+
+        //get Ghostscript instance
+        Ghostscript gs = Ghostscript.getInstance();
+
+        //prepare Ghostscript interpreter parameters
+        //refer to Ghostscript documentation for parameter usage
+        List<String> gsArgs = new ArrayList<String>();
+        gsArgs.add("-gs");
+        gsArgs.add("-dNOPAUSE");
+        gsArgs.add("-dQUIET");
+        gsArgs.add("-dBATCH");
+        gsArgs.add("-dSAFER");
+        gsArgs.add("-sDEVICE=pnggray");
+        // Changes Ognjen
+        gsArgs.add("-dINTERPOLATE");
+        gsArgs.add("-dNumRenderingThreads=4");
+        // decreased from 300ppi
+        gsArgs.add("-r300");
+        // End of changes
+        gsArgs.add("-dGraphicsAlphaBits=4");
+        gsArgs.add("-dTextAlphaBits=4");
+        gsArgs.add("-sOutputFile=" + imageDir.getPath() + "/workingimage%03d.png");
+        gsArgs.add(inputPdfFile.getPath());
+
+        //gs -dSAFER -sDEVICE=png16m -dINTERPOLATE -dNumRenderingThreads=8
+        // -dFirstPage=1 -dLastPage=1 -r300 -o ./output\_image.png -c 30000000
+        // setvmthreshold -f my\_pdf.pdf
+        //execute and exit interpreter
+        try {
+            synchronized (gs) {
+                gs.initialize(gsArgs.toArray(new String[0]));
+                gs.exit();
+            }
+        } catch (GhostscriptException e) {
+            logger.error(e.getCause() != null ? e.getCause().toString() : e.getMessage(), e);
+        } finally {
+            //delete interpreter instance (safer)
+            try {
+                Ghostscript.deleteInstance();
+            } catch (GhostscriptException e) {
+                //nothing
+            }
+        }
+
+        // find working files
+        File[] workingFiles = imageDir.listFiles(new FilenameFilter() {
+
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().matches("workingimage\\d{3}\\.png$");
+            }
+        });
+
+        Arrays.sort(workingFiles, new Comparator<File>() {
+            @Override
+            public int compare(File f1, File f2) {
+                return f1.getName().compareTo(f2.getName());
+            }
+        });
+
+        return workingFiles;
+    }
     /**
      * Splits PDF.
      *
