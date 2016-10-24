@@ -45,7 +45,7 @@ public class PdFdemoApplication {
 			System.out.println("OS current temporary directory is " + tempDirPath);
 			File tempDir = FileUtils.createTempDir();
 			//USING WORKING DIR FOR DEBUG
-			//tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR/png");
+			tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR/png");
 
 			TesseractCustom tessaractInstance = new TesseractCustom();
 			tessaractInstance.setLanguage(properties.getProperty("lang","eng"));
@@ -77,8 +77,20 @@ public class PdFdemoApplication {
 		//Export Images from PDF into pngs 300ppi resolution
 		File[] files = PdfUtilities.convertPdf2Png(inputFile,tempDir);
 
+		List<String> orig = null;
+		try {
+			orig = PdfUtilities.getImagesFromPdf(inputPdf, tempDir);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		//orig.get(1);
+
 		for (File file : files) {
 			String hocrResult = tessaractInstance.doOCR(file);
+			//replace working images with original
+
+			hocrResult = hocrResult.replace(file.getAbsolutePath(), orig.get(0));
 			try {
 				FileOutputStream os;
 				String pdfFile = file.getAbsolutePath().replaceFirst("[.][^.]+$", "") +".pdf";
@@ -86,7 +98,7 @@ public class PdFdemoApplication {
 				InputStream stream = new ByteArrayInputStream(hocrResult.getBytes("UTF-8"));
 
 				HocrToPdf hocrToPdf = new HocrToPdf(os);
-				hocrToPdf.addHocrDocument(stream, new FileInputStream(file));
+				hocrToPdf.addHocrDocument(stream, new FileInputStream(new File(orig.get(0))));
 				hocrToPdf.setPdfFormat(PDFF.PDF_A_1B);
 				hocrToPdf.convert();
 				os.close();
@@ -97,9 +109,8 @@ public class PdFdemoApplication {
 			}
 		}
 
-		// find working files
+		// find resulting pdf files and order them
 		File[] workingFiles = tempDir.listFiles(new FilenameFilter() {
-
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.toLowerCase().matches("workingimage\\d{3}\\.pdf$");
@@ -112,15 +123,17 @@ public class PdFdemoApplication {
 				return f1.getName().compareTo(f2.getName());
 			}
 		});
+
+
 		PdfUtilities.mergePdf(workingFiles, new File(outputPdf + ".pdf"));
-		// Clean up
+		//FileUtils.deleteDirectory(tempDir);
 	}
 
 	private static void makePdfWithUpscaledImages(TesseractCustom tessaractInstance, String inputPdf, String outputPdf) throws TesseractException {
 		// DIRECTLY GENERATE PDF
 		List<ITesseract.RenderedFormat> list = new ArrayList<ITesseract.RenderedFormat>();
 		list.add(ITesseract.RenderedFormat.PDF);
-		tessaractInstance.createDocuments(inputPdf,outputPdf, list);
+		tessaractInstance.createDocuments(inputPdf, outputPdf, list);
 
 	}
 

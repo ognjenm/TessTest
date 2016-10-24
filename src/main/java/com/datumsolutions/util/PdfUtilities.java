@@ -19,12 +19,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+
 import net.sourceforge.tess4j.util.ImageIOHelper;
 import net.sourceforge.tess4j.util.LoadLibs;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.ghost4j.Ghostscript;
 import org.ghost4j.GhostscriptException;
 import org.slf4j.LoggerFactory;
@@ -411,5 +413,42 @@ public class PdfUtilities {
             return message + GS_INSTALL;
         }
         return message;
+    }
+
+
+    public static List<String> getImagesFromPdf(String inFile, File tempDir) throws IOException {
+        PDDocument document = null;
+        List<String> files = new ArrayList<String>();
+
+        try
+        {
+            document = PDDocument.load(inFile);
+            List pages = document.getDocumentCatalog().getAllPages();
+            Iterator iter = pages.iterator();
+            while (iter.hasNext()) {
+                PDPage page = (PDPage) iter.next();
+                PDResources resources = page.getResources();
+                Map pageImages = resources.getImages();
+                if (pageImages != null) {
+                    Iterator imageIter = pageImages.keySet().iterator();
+                    int counter = 1;
+                    while (imageIter.hasNext()) {
+                        String key = (String) imageIter.next();
+                        PDXObjectImage image = (PDXObjectImage) pageImages.get(key);
+                        String name = tempDir.getAbsolutePath() + "/" + "originalimage" + counter  ;
+                        System.out.println( "Writing image:" + name + image.getSuffix() );
+                        image.write2file(name);
+                        files.add(name + "." +image.getSuffix());
+                        counter ++;
+                        //image.write2OutputStream(/* some output stream */);
+                    }
+                }
+            }
+        }
+        finally {
+            if( document != null ) document.close();
+        }
+
+        return files;
     }
 }
