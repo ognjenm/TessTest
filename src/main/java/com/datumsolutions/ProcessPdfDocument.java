@@ -86,8 +86,8 @@ public class ProcessPdfDocument {
         String tempdirProperty = "java.io.tmpdir";
         String tempDirPath = System.getProperty(tempdirProperty);
         System.out.println("OS current temporary directory is " + tempDirPath);
-        File tempDir = FileUtils.createTempDir();
-        tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
+        //File tempDir = FileUtils.createTempDir();
+       // tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
 
         //HOCR
         tessaractInstance.setHocr(true);
