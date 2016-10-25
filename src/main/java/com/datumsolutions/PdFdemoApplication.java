@@ -48,7 +48,7 @@ public class PdFdemoApplication {
 			//COMMENT THIS IN PRODUCTION
 			// Below is screnshot of settings in Intelij
 			// https://www.dropbox.com/s/1ttb8lwn2qfbz0m/Screenshot%202016-10-24%2017.02.34.png?dl=1
-			tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR/png");
+			//tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR/png");
 
 			TesseractCustom tessaractInstance = new TesseractCustom();
 			tessaractInstance.setLanguage(properties.getProperty("lang","eng"));
@@ -86,14 +86,20 @@ public class PdFdemoApplication {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		if(orig.size()!=files.length)
+		{
+			//TODO: Falback to makePdfWithUpscaledImages ???
+			throw new TesseractException("Different number of pages detected");
+		}
 
-		//orig.get(1);
-
+		int counter = 0;
 		for (File file : files) {
 			String hocrResult = tessaractInstance.doOCR(file);
 			//replace working images with original
 
-			hocrResult = hocrResult.replace(file.getAbsolutePath(), orig.get(0));
+			// I think that I don't need this????
+			hocrResult = hocrResult.replace(file.getAbsolutePath(), orig.get(counter));
+
 			try {
 				FileOutputStream os;
 				String pdfFile = file.getAbsolutePath().replaceFirst("[.][^.]+$", "") +".pdf";
@@ -101,11 +107,12 @@ public class PdFdemoApplication {
 				InputStream stream = new ByteArrayInputStream(hocrResult.getBytes("UTF-8"));
 
 				HocrToPdf hocrToPdf = new HocrToPdf(os);
-				hocrToPdf.addHocrDocument(stream, new FileInputStream(new File(orig.get(0))));
+				hocrToPdf.addHocrDocument(stream, new FileInputStream(new File(orig.get(counter))));
 				hocrToPdf.setPdfFormat(PDFF.PDF_A_1B);
 				hocrToPdf.convert();
 				os.close();
 				stream.close();
+				counter++;
 
 			} catch (IOException e) {
 				e.printStackTrace();
