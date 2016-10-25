@@ -1,14 +1,19 @@
 package com.datumsolutions;
 
 import com.datumsolutions.util.FileUtils;
+import com.datumsolutions.util.Jhocr2pdf;
 import com.datumsolutions.util.PdfUtilities;
 import com.googlecode.jhocr.converter.HocrToPdf;
 import com.googlecode.jhocr.util.enums.PDFF;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDResources;
+import org.xml.sax.SAXException;
 
 import java.io.*;
 import java.util.*;
@@ -149,6 +154,25 @@ public class ProcessPdfDocument {
         List<ITesseract.RenderedFormat> list = new ArrayList<ITesseract.RenderedFormat>();
         list.add(ITesseract.RenderedFormat.PDF);
         tessaractInstance.createDocuments(inputPdf, outputPdf, list);
+    }
+
+    public String makePdfWithOriginalPdf(String inputPdf, String outputPdf) throws TesseractException, IOException, DocumentException, SAXException {
+        // DIRECTLY GENERATE PDF
+        tessaractInstance.setHocr(true);
+        File inputFile = new File(inputPdf);
+        String hocrResult = tessaractInstance.doOCR(inputFile);
+        PdfReader reader = new PdfReader(inputPdf);
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(outputPdf));
+        String fontPath = "/Library/Fonts/Times New Roman.ttf";
+        Jhocr2pdf jhocr = new Jhocr2pdf(stamper,true,fontPath);
+        // convert String into InputStream
+        InputStream is = new ByteArrayInputStream(hocrResult.getBytes());
+
+        // read it with BufferedReader
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        jhocr.parse(br, -1);
+        stamper.close();
+        return hocrResult;
     }
 
 }

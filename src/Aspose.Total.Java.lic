@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<License>
+  <Data>
+    <LicensedTo>Datum Consulting Group</LicensedTo>
+    <EmailTo>amar@dcgteam.com</EmailTo>
+    <LicenseType>Developer OEM</LicenseType>
+    <LicenseNote>Limited to 1 developer.</LicenseNote>
+    <OrderID>141120090123</OrderID>
+    <UserID>237314</UserID>
+    <OEM>This is a redistributable license</OEM>
+    <Products>
+      <Product>Aspose.Total for Java</Product>
+    </Products>
+    <EditionType>Enterprise</EditionType>
+    <SerialNumber>ce8682d2-5ec4-43e3-b17d-beed77e69f0f</SerialNumber>
+    <SubscriptionExpiry>20151203</SubscriptionExpiry>
+    <LicenseVersion>3.0</LicenseVersion>
+    <LicenseInstructions>http://www.aspose.com/corporate/purchase/license-instructions.aspx</LicenseInstructions>
+  </Data>
+  <Signature>qUkWbRMibA7DHEm3vFPXok0Hjl8ay0LWaVgARgmzjumUV5E1c2JgkMawzSRJA3ExivfLNwm2RFpZQWupT5+7abTXtmgMBT4gHgeTmSal7RiSxcdOXAskf5I5KKVxbq+26KBh1B/6zbxyEWtq11OPKyYX3IYjTmBX9So17QFVanY=</Signature>
+</License>
