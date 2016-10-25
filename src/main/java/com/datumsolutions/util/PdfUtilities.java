@@ -15,6 +15,7 @@
  */
 package com.datumsolutions.util;
 
+import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -23,13 +24,17 @@ import java.util.*;
 
 import net.sourceforge.tess4j.util.ImageIOHelper;
 import net.sourceforge.tess4j.util.LoadLibs;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageTree;
 import org.apache.pdfbox.pdmodel.PDResources;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.ghost4j.Ghostscript;
 import org.ghost4j.GhostscriptException;
 import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
 
 public class PdfUtilities {
 
@@ -415,40 +420,62 @@ public class PdfUtilities {
         return message;
     }
 
-
     public static List<String> getImagesFromPdf(String inFile, File tempDir) throws IOException {
-        PDDocument document = null;
         List<String> files = new ArrayList<String>();
+        int counter = 1;
 
-        try
-        {
-            document = PDDocument.load(inFile);
-            List pages = document.getDocumentCatalog().getAllPages();
-            Iterator iter = pages.iterator();
-            while (iter.hasNext()) {
-                PDPage page = (PDPage) iter.next();
-                PDResources resources = page.getResources();
-                Map pageImages = resources.getImages();
-                if (pageImages != null) {
-                    Iterator imageIter = pageImages.keySet().iterator();
-                    int counter = 1;
-                    while (imageIter.hasNext()) {
-                        String key = (String) imageIter.next();
-                        PDXObjectImage image = (PDXObjectImage) pageImages.get(key);
-                        String name = tempDir.getAbsolutePath() + "/" + "originalimage" + counter  ;
-                        System.out.println( "Writing image:" + name + image.getSuffix() );
-                        image.write2file(name);
-                        files.add(name + "." +image.getSuffix());
-                        counter ++;
-                        //image.write2OutputStream(/* some output stream */);
-                    }
+        PDDocument document = PDDocument.load(new File(inFile));
+        PDPageTree list = document.getPages();
+        for (PDPage page : list) {
+            PDResources pdResources = page.getResources();
+            for (COSName c : pdResources.getXObjectNames()) {
+                PDXObject o = pdResources.getXObject(c);
+                if (o instanceof org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject) {
+                    String name = tempDir.getAbsolutePath() + "/" + "originalimage" + counter;
+
+                    File file = new File(name + ".png");
+                    ImageIO.write(((org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject)o).getImage(), "png", file);
+                    files.add(name + ".png");
+                    counter ++;
                 }
             }
         }
-        finally {
-            if( document != null ) document.close();
-        }
-
         return files;
     }
+
+//    public static List<String> getImagesFromPdf(String inFile, File tempDir) throws IOException {
+//        PDDocument document = null;
+//        List<String> files = new ArrayList<String>();
+//
+//        try
+//        {
+//            document = PDDocument.load(new File(inFile));
+//            List pages = document.getDocumentCatalog().getAllPages();
+//            Iterator iter = pages.iterator();
+//            while (iter.hasNext()) {
+//                PDPage page = (PDPage) iter.next();
+//                PDResources resources = page.getResources();
+//                Map pageImages = resources.getImages();
+//                if (pageImages != null) {
+//                    Iterator imageIter = pageImages.keySet().iterator();
+//                    int counter = 1;
+//                    while (imageIter.hasNext()) {
+//                        String key = (String) imageIter.next();
+//                        PDXObjectImage image = (PDXObjectImage) pageImages.get(key);
+//                        String name = tempDir.getAbsolutePath() + "/" + "originalimage" + counter  ;
+//                        System.out.println( "Writing image:" + name + image.getSuffix() );
+//                        image.write2file(name);
+//                        files.add(name + "." +image.getSuffix());
+//                        counter ++;
+//                        //image.write2OutputStream(/* some output stream */);
+//                    }
+//                }
+//            }
+//        }
+//        finally {
+//            if( document != null ) document.close();
+//        }
+//
+//        return files;
+//    }
 }

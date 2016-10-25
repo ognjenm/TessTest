@@ -10,7 +10,7 @@ public class PdFdemoApplication {
 
 	public static void main(String[] args) throws IOException {
 		Properties properties = new Properties();
-		String inputPdf = "/Users/ognjenm/code/open_source/testPdf/files/CMS-1500-FORM-EXAMPLE1236.pdf";
+		String inputPdf = "/Users/ognjenm/code/open_source/testPdf/files/scan3.pdf";
 		String outputPdf = "./out"; // no extension needed
 
 		try {
@@ -23,8 +23,9 @@ public class PdFdemoApplication {
 
 			try
 			{
-				System.out.println("TESSDATA PATH: "+properties.getProperty("tessdata.path"));
 				properties.load(new FileInputStream(propertiesPath+"/application.properties"));
+				System.out.println("TESSDATA PATH: "+properties.getProperty("tessdata.path"));
+
 			}
 			catch (FileNotFoundException e)
 			{
