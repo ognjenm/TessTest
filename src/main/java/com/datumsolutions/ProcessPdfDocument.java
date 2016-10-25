@@ -6,6 +6,7 @@ import com.googlecode.jhocr.converter.HocrToPdf;
 import com.googlecode.jhocr.util.enums.PDFF;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
+import net.sourceforge.tess4j.util.LoadLibs;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDResources;
@@ -24,14 +25,16 @@ public class ProcessPdfDocument {
     public ProcessPdfDocument(Properties properties)
     {
         tessaractInstance = new TesseractCustom();
-        tessaractInstance.setLanguage(properties.getProperty("lang","eng"));
-        tessaractInstance.setDatapath(properties.getProperty("tessdata.path","#"));
+        tessaractInstance.setLanguage("eng");
+        //tessaractInstance.setDatapath(properties.getProperty("tessdata.path","#"));
         // check for tessdata dir path from configuration
         // else use bundled tessdata
-        if("#".equals(properties.getProperty("tessdata.path")))
-        {
-            tessaractInstance.setDatapath(properties.getProperty("tessdata.path"));
-        }
+//        if("#".equals(properties.getProperty("tessdata.path")))
+//        {
+//            tessaractInstance.setDatapath(properties.getProperty("tessdata.path"));
+//        }
+        tessaractInstance.setDatapath(LoadLibs.extractTessResources("tessdata").getAbsolutePath());
+
     }
 
     /**
