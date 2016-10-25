@@ -70,9 +70,7 @@ public class ProcessPdfDocument {
 
         //doc.getGraphicsState().getTextState().getRenderingMode() == PDTextState.RENDERING_MODE_NEITHER_FILL_NOR_STROKE_TEXT
 
-
-
-        if(returnOriginalImages)
+        if(returnOriginalImages && !isScanned)
         {
             this.makePdfWithOriginalImages(inputPdfPath, outputPdfPath);
         }
