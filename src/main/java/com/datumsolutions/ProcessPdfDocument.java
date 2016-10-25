@@ -91,54 +91,57 @@ public class ProcessPdfDocument {
         }
         if(orig.size()!=files.length)
         {
-            //TODO: Falback to makePdfWithUpscaledImages ???
-            throw new TesseractException("Different number of pages detected");
+           this.makePdfWithUpscaledImages(inputPdf, outputPdf);
+        }
+        else
+        {
+            int counter = 0;
+            for (File file : files) {
+                String hocrResult = tessaractInstance.doOCR(file);
+                //replace working images with original
+
+                // I think that I don't need this????
+                hocrResult = hocrResult.replace(file.getAbsolutePath(), orig.get(counter));
+
+                try {
+                    FileOutputStream os;
+                    String pdfFile = file.getAbsolutePath().replaceFirst("[.][^.]+$", "") +".pdf";
+                    os = new FileOutputStream(pdfFile);
+                    InputStream stream = new ByteArrayInputStream(hocrResult.getBytes("UTF-8"));
+
+                    HocrToPdf hocrToPdf = new HocrToPdf(os);
+                    hocrToPdf.addHocrDocument(stream, new FileInputStream(new File(orig.get(counter))));
+                    hocrToPdf.setPdfFormat(PDFF.PDF_A_1B);
+                    hocrToPdf.convert();
+                    os.close();
+                    stream.close();
+                    counter++;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // find resulting pdf files and order them
+            File[] workingFiles = tempDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().matches("workingimage\\d{3}\\.pdf$");
+                }
+            });
+
+            Arrays.sort(workingFiles, new Comparator<File>() {
+                @Override
+                public int compare(File f1, File f2) {
+                    return f1.getName().compareTo(f2.getName());
+                }
+            });
+
+            PdfUtilities.mergePdf(workingFiles, new File(outputPdf + ".pdf"));
+            //FileUtils.deleteDirectory(tempDir);
         }
 
-        int counter = 0;
-        for (File file : files) {
-            String hocrResult = tessaractInstance.doOCR(file);
-            //replace working images with original
 
-            // I think that I don't need this????
-            hocrResult = hocrResult.replace(file.getAbsolutePath(), orig.get(counter));
-
-            try {
-                FileOutputStream os;
-                String pdfFile = file.getAbsolutePath().replaceFirst("[.][^.]+$", "") +".pdf";
-                os = new FileOutputStream(pdfFile);
-                InputStream stream = new ByteArrayInputStream(hocrResult.getBytes("UTF-8"));
-
-                HocrToPdf hocrToPdf = new HocrToPdf(os);
-                hocrToPdf.addHocrDocument(stream, new FileInputStream(new File(orig.get(counter))));
-                hocrToPdf.setPdfFormat(PDFF.PDF_A_1B);
-                hocrToPdf.convert();
-                os.close();
-                stream.close();
-                counter++;
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // find resulting pdf files and order them
-        File[] workingFiles = tempDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().matches("workingimage\\d{3}\\.pdf$");
-            }
-        });
-
-        Arrays.sort(workingFiles, new Comparator<File>() {
-            @Override
-            public int compare(File f1, File f2) {
-                return f1.getName().compareTo(f2.getName());
-            }
-        });
-
-        PdfUtilities.mergePdf(workingFiles, new File(outputPdf + ".pdf"));
-        //FileUtils.deleteDirectory(tempDir);
     }
 
     private void makePdfWithUpscaledImages(String inputPdf, String outputPdf) throws TesseractException {
