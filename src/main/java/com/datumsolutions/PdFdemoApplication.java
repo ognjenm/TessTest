@@ -1,15 +1,6 @@
 package com.datumsolutions;
 
-import com.datumsolutions.util.FileUtils;
-import com.datumsolutions.util.PdfUtilities;
-import com.googlecode.jhocr.converter.HocrToPdf;
-import com.googlecode.jhocr.util.JHOCRUtil;
-import com.googlecode.jhocr.util.enums.PDFF;
-import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.TesseractException;
-import net.sourceforge.tess4j.util.ImageIOHelper;
-
-
 import java.io.*;
 import java.util.*;
 
@@ -19,7 +10,7 @@ public class PdFdemoApplication {
 
 	public static void main(String[] args) throws IOException {
 		Properties properties = new Properties();
-		String inputPdf = "/Users/ognjenm/code/open_source/testPdf/files/scan.pdf";
+		String inputPdf = "/Users/ognjenm/code/open_source/testPdf/files/CMS-1500-FORM-EXAMPLE1236.pdf";
 		String outputPdf = "./out"; // no extension needed
 
 		try {
