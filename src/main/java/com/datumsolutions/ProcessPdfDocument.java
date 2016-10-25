@@ -46,13 +46,13 @@ public class ProcessPdfDocument {
         //TODO: check if PDF has embanded fonts. If so do not OCR or do makePdfWithUpscaledImages
 
         PDDocument document = null;
-        Boolean isScanned = false;
-        try {
-            document = PDDocument.load(new File(inputPdfPath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PDPage pages = document.getPage(0);
+//        Boolean isScanned = false;
+//        try {
+//            document = PDDocument.load(new File(inputPdfPath));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        PDPage pages = document.getPage(0);
 
 
         //doc.getGraphicsState().getTextState().getRenderingMode() == PDTextState.RENDERING_MODE_NEITHER_FILL_NOR_STROKE_TEXT
@@ -74,7 +74,7 @@ public class ProcessPdfDocument {
         String tempDirPath = System.getProperty(tempdirProperty);
         System.out.println("OS current temporary directory is " + tempDirPath);
         File tempDir = FileUtils.createTempDir();
-       tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
+       //tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
 
         //HOCR
         tessaractInstance.setHocr(true);
@@ -84,12 +84,12 @@ public class ProcessPdfDocument {
         File[] files = PdfUtilities.convertPdf2Png(inputFile,tempDir);
 
         List<String> orig = null;
-        try {
-            orig = PdfUtilities.getImagesFromPdf(inputPdf, tempDir);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if(orig.size()!=files.length)
+//        try {
+//            orig = PdfUtilities.getImagesFromPdf(inputPdf, tempDir);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        if(1==2)//orig.size()!=files.length
         {
            this.makePdfWithUpscaledImages(inputPdf, outputPdf);
         }
@@ -101,7 +101,7 @@ public class ProcessPdfDocument {
                 //replace working images with original
 
                 // I think that I don't need this????
-                hocrResult = hocrResult.replace(file.getAbsolutePath(), orig.get(counter));
+                //hocrResult = hocrResult.replace(file.getAbsolutePath(), orig.get(counter));
 
                 try {
                     FileOutputStream os;
@@ -110,7 +110,7 @@ public class ProcessPdfDocument {
                     InputStream stream = new ByteArrayInputStream(hocrResult.getBytes("UTF-8"));
 
                     HocrToPdf hocrToPdf = new HocrToPdf(os);
-                    hocrToPdf.addHocrDocument(stream, new FileInputStream(new File(orig.get(counter))));
+                    hocrToPdf.addHocrDocument(stream, new FileInputStream(file));
                     hocrToPdf.setPdfFormat(PDFF.PDF_A_1B);
                     hocrToPdf.convert();
                     os.close();

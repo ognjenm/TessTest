@@ -1,6 +1,10 @@
 package com.datumsolutions;
 
+//import com.datumsolutions.util.PDFUtils;
+import com.itextpdf.text.DocumentException;
 import net.sourceforge.tess4j.TesseractException;
+import org.xml.sax.SAXException;
+
 import java.io.*;
 import java.util.*;
 
@@ -32,10 +36,18 @@ public class PdFdemoApplication {
 				e.printStackTrace();
 			}
 
+
 			ProcessPdfDocument processPdfDocument = new ProcessPdfDocument(properties);
 			processPdfDocument.doOCR(inputPdf, outputPdf, true);
+			//String result = processPdfDocument.makePdfWithOriginalPdf(inputPdf,outputPdf);
 
 		} catch (TesseractException e) {
+			e.printStackTrace();
+//		} catch (SAXException e) {
+//			e.printStackTrace();
+//		} catch (DocumentException e) {
+//			e.printStackTrace();
+//		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
