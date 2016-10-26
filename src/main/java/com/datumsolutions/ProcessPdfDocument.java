@@ -46,20 +46,6 @@ public class ProcessPdfDocument {
      */
     public Boolean doOCR(String inputPdfPath, String outputPdfPath, Boolean returnOriginalImages) throws TesseractException {
 
-        //TODO: check if PDF has embanded fonts. If so do not OCR or do makePdfWithUpscaledImages
-
-        PDDocument document = null;
-//        Boolean isScanned = false;
-//        try {
-//            document = PDDocument.load(new File(inputPdfPath));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        PDPage pages = document.getPage(0);
-
-
-        //doc.getGraphicsState().getTextState().getRenderingMode() == PDTextState.RENDERING_MODE_NEITHER_FILL_NOR_STROKE_TEXT
-
         if(returnOriginalImages)
         {
             this.makePdfWithOriginalImages(inputPdfPath, outputPdfPath);
@@ -77,7 +63,7 @@ public class ProcessPdfDocument {
         String tempDirPath = System.getProperty(tempdirProperty);
         System.out.println("OS current temporary directory is " + tempDirPath);
         File tempDir = FileUtils.createTempDir();
-       //tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
+        //tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
 
         //HOCR
         tessaractInstance.setHocr(true);
@@ -87,22 +73,10 @@ public class ProcessPdfDocument {
         File[] files = PdfUtilities.convertPdf2Png(inputFile,tempDir);
 
         List<String> orig = null;
-//        try {
-//            orig = PdfUtilities.getImagesFromPdf(inputPdf, tempDir);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-        if(1==2)//orig.size()!=files.length
-        {
-           this.makePdfWithUpscaledImages(inputPdf, outputPdf);
-        }
-        else
-        {
             int counter = 0;
             for (File file : files) {
                 String hocrResult = tessaractInstance.doOCR(file);
                 //replace working images with original
-
                 // I think that I don't need this????
                 //hocrResult = hocrResult.replace(file.getAbsolutePath(), orig.get(counter));
 
@@ -141,9 +115,7 @@ public class ProcessPdfDocument {
             });
 
             PdfUtilities.mergePdf(workingFiles, new File(outputPdf + ".pdf"));
-            //FileUtils.deleteDirectory(tempDir);
-        }
-
+            FileUtils.deleteDirectory(tempDir);
 
     }
 

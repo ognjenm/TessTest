@@ -39,15 +39,8 @@ public class PdFdemoApplication {
 
 			ProcessPdfDocument processPdfDocument = new ProcessPdfDocument(properties);
 			processPdfDocument.doOCR(inputPdf, outputPdf, true);
-			//String result = processPdfDocument.makePdfWithOriginalPdf(inputPdf,outputPdf);
 
 		} catch (TesseractException e) {
-			e.printStackTrace();
-//		} catch (SAXException e) {
-//			e.printStackTrace();
-//		} catch (DocumentException e) {
-//			e.printStackTrace();
-//		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
