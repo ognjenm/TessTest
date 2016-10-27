@@ -1,12 +1,16 @@
 package com.datumsolutions;
 
+import com.datumsolutions.hocr.HocrSingle;
 import com.datumsolutions.util.FileUtils;
 import com.datumsolutions.util.PdfUtilities;
 import com.googlecode.jhocr.converter.HocrToPdf;
 import com.googlecode.jhocr.util.enums.PDFF;
 import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.util.LoadLibs;
+import org.apache.pdfbox.multipdf.Overlay;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDResources;
@@ -46,13 +50,14 @@ public class ProcessPdfDocument {
      */
     public Boolean doOCR(String inputPdfPath, String outputPdfPath, Boolean returnOriginalImages) throws TesseractException {
 
-        if(returnOriginalImages)
-        {
-            this.makePdfWithOriginalImages(inputPdfPath, outputPdfPath);
-        }
-        else {
-            this.makePdfWithUpscaledImages(inputPdfPath, outputPdfPath);
-        }
+        makePdfWithOriginalPdf(inputPdfPath, outputPdfPath);
+//        if(returnOriginalImages)
+//        {
+//            this.makePdfWithOriginalImages(inputPdfPath, outputPdfPath);
+//        }
+//        else {
+//            this.makePdfWithUpscaledImages(inputPdfPath, outputPdfPath);
+//        }
         return true;
     }
 
@@ -71,6 +76,18 @@ public class ProcessPdfDocument {
 
         //Export Images from PDF into pngs 300ppi resolution
         File[] files = PdfUtilities.convertPdf2Png(inputFile,tempDir);
+
+
+//        Arrays.stream(files).parallel().forEach((file) -> {
+//                    Tesseract1 tesseract = new Tesseract1();
+//                    try {
+//                        tesseract.doOCR(file); // Ignore Result
+//                    } catch (TesseractException e) {
+//
+//                    }
+//                }
+//        );
+
 
         List<String> orig = null;
             int counter = 0;
@@ -124,6 +141,90 @@ public class ProcessPdfDocument {
         List<ITesseract.RenderedFormat> list = new ArrayList<ITesseract.RenderedFormat>();
         list.add(ITesseract.RenderedFormat.PDF);
         tessaractInstance.createDocuments(inputPdf, outputPdf, list);
+    }
+
+    private void makePdfWithOriginalPdf(String inputPdf, String outputPdf) throws TesseractException {
+
+//        PDDocument watermarkDoc = PDDocument.load(getServletContext()
+//                .getRealPath(templateFile));
+//        Overlay overlay = new Overlay();
+//
+//        overlay.overlay(watermarkDoc, doc);
+
+        String tempdirProperty = "java.io.tmpdir";
+        String tempDirPath = System.getProperty(tempdirProperty);
+        System.out.println("OS current temporary directory is " + tempDirPath);
+        File tempDir = FileUtils.createTempDir();
+        tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
+        tessaractInstance.setHocr(true);
+        File inputFile = new File(inputPdf);
+        File[] files = PdfUtilities.convertPdf2Png(inputFile,tempDir);
+
+
+        List<String> orig = null;
+        int counter = 0;
+        for (File file : files) {
+            String hocrResult = tessaractInstance.doOCR(file);
+            try {
+                FileOutputStream os;
+                String pdfFile = file.getAbsolutePath().replaceFirst("[.][^.]+$", "") +"_textonly.pdf";
+                HocrSingle hocrSingle = new HocrSingle();
+                hocrSingle.process(hocrResult, pdfFile, file.getAbsolutePath());
+                counter++;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // find resulting pdf files and order them
+        File[] workingFiles = tempDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().matches("workingimage\\d{3}\\_textonly.pdf$");
+            }
+        });
+
+        Arrays.sort(workingFiles, new Comparator<File>() {
+            @Override
+            public int compare(File f1, File f2) {
+                return f1.getName().compareTo(f2.getName());
+            }
+        });
+
+        PdfUtilities.mergePdf(workingFiles, new File(outputPdf + "_empty.pdf"));
+
+        PDDocument watermarkDoc = null;
+        PDDocument doc = null;
+        Overlay overlay = new Overlay();
+
+        try {
+            doc = PDDocument.load(new File(inputPdf));
+            //for all the pages, you can add overlay guide, indicating watermark the original pages with the watermark document.
+            HashMap<Integer, String> overlayGuide = new HashMap<Integer, String>();
+            int i = 0;
+            for (File pdfSinglePage: workingFiles) {
+                overlayGuide.put(i+1, pdfSinglePage.getAbsolutePath());
+                i++;
+            }
+
+            overlay.setInputPDF(doc);
+            overlay.setOverlayPosition(Overlay.Position.BACKGROUND);
+            PDDocument result = overlay.overlay(overlayGuide);
+            result.save(outputPdf);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                overlay.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // FileUtils.deleteDirectory(tempDir);
+
     }
 
 }
