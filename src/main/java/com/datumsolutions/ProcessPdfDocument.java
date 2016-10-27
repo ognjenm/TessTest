@@ -145,24 +145,15 @@ public class ProcessPdfDocument {
 
     private void makePdfWithOriginalPdf(String inputPdf, String outputPdf) throws TesseractException {
 
-//        PDDocument watermarkDoc = PDDocument.load(getServletContext()
-//                .getRealPath(templateFile));
-//        Overlay overlay = new Overlay();
-//
-//        overlay.overlay(watermarkDoc, doc);
-
         String tempdirProperty = "java.io.tmpdir";
         String tempDirPath = System.getProperty(tempdirProperty);
         System.out.println("OS current temporary directory is " + tempDirPath);
         File tempDir = FileUtils.createTempDir();
-        tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
+        //tempDir = new File("/Users/ognjenm/code/open_source/testPdf/WORKINGDIR");
         tessaractInstance.setHocr(true);
         File inputFile = new File(inputPdf);
         File[] files = PdfUtilities.convertPdf2Png(inputFile,tempDir);
 
-
-        List<String> orig = null;
-        int counter = 0;
         for (File file : files) {
             String hocrResult = tessaractInstance.doOCR(file);
             try {
@@ -170,8 +161,6 @@ public class ProcessPdfDocument {
                 String pdfFile = file.getAbsolutePath().replaceFirst("[.][^.]+$", "") +"_textonly.pdf";
                 HocrSingle hocrSingle = new HocrSingle();
                 hocrSingle.process(hocrResult, pdfFile, file.getAbsolutePath());
-                counter++;
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -194,7 +183,6 @@ public class ProcessPdfDocument {
 
         PdfUtilities.mergePdf(workingFiles, new File(outputPdf + "_empty.pdf"));
 
-        PDDocument watermarkDoc = null;
         PDDocument doc = null;
         Overlay overlay = new Overlay();
 
@@ -207,11 +195,10 @@ public class ProcessPdfDocument {
                 overlayGuide.put(i+1, pdfSinglePage.getAbsolutePath());
                 i++;
             }
-
             overlay.setInputPDF(doc);
             overlay.setOverlayPosition(Overlay.Position.BACKGROUND);
             PDDocument result = overlay.overlay(overlayGuide);
-            result.save(outputPdf);
+            result.save(outputPdf + ".pdf");
             
         } catch (IOException e) {
             e.printStackTrace();
@@ -223,7 +210,7 @@ public class ProcessPdfDocument {
             }
         }
 
-        // FileUtils.deleteDirectory(tempDir);
+        FileUtils.deleteDirectory(tempDir);
 
     }
 
